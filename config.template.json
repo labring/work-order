@@ -1,0 +1,51 @@
+{
+  "workorder": {
+    "type": [
+      {
+        "id": "app",
+        "label": "App"
+      },
+      {
+        "id": "dataset",
+        "label": "Dataset"
+      },
+      {
+        "id": "account",
+        "label": "Account"
+      },
+      {
+        "id": "commercial",
+        "label": "Commercial"
+      }
+    ]
+  },
+  "user": {
+    "level": [
+      {
+        "id": "free",
+        "label": "Free",
+        "priority": 0
+      },
+      {
+        "id": "experienced",
+        "label": "Experienced",
+        "priority": 1
+      },
+      {
+        "id": "team",
+        "label": "Team",
+        "priority": 2
+      },
+      {
+        "id": "enterprise",
+        "label": "Enterprise",
+        "priority": 3
+      },
+      {
+        "id": "custom",
+        "label": "custom",
+        "priority": 4
+      }
+    ]
+  }
+}

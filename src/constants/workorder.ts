@@ -1,30 +1,4 @@
-import { WorkOrderStatus, WorkOrderType } from '@/types/workorder';
-
-export const OrderTypeList: {
-  id: WorkOrderType;
-  label: string;
-}[] = [
-  {
-    id: WorkOrderType.App,
-    label: 'app'
-  },
-  {
-    id: WorkOrderType.Dataset,
-    label: 'dataset'
-  },
-  {
-    id: WorkOrderType.Account,
-    label: 'account'
-  },
-  {
-    id: WorkOrderType.Commercial,
-    label: 'commercial'
-  },
-  {
-    id: WorkOrderType.Other,
-    label: 'other'
-  }
-];
+import { WorkOrderStatus } from '@/types/workorder';
 
 export const StatusMap: {
   [key in WorkOrderStatus]: {

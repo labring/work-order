@@ -39,3 +39,5 @@ next-env.d.ts
 platform.json
 .yalc/
 yalc.lock
+config.*.json
+!config.template.json

@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const isAdmin = payload.username === 'root';
     await createUser({
-      subscription: payload.subscription,
+      level: payload.level,
       userId: payload.userId,
       username: payload.username,
       domain: payload.domain,

@@ -1,14 +1,13 @@
-import { WorkOrderType } from '@/types/workorder';
 import { updateOrder } from '../db/workorder';
 import { TokenPayload } from '@/types/user';
 
 export type FeishuNotificationParams = {
-  type: WorkOrderType;
+  type: string;
   description: string;
   orderId: string;
   switchToManual?: boolean;
-  subscription: string;
   payload: TokenPayload;
+  level: number;
 };
 
 export const FeishuNotification = async ({
@@ -16,27 +15,29 @@ export const FeishuNotification = async ({
   description,
   orderId,
   switchToManual = false,
-  subscription,
+  level,
   payload
 }: FeishuNotificationParams) => {
   const feishuUrl = process.env.ADMIN_FEISHU_URL;
   const feishuCallBackUrl = process.env.ADMIN_FEISHU_CALLBACK_URL;
+  const subscription = global.SystemConfig.user.level.find((item) => item.priority === level);
   if (!feishuUrl) {
     return {};
   }
-  const header = switchToManual
-    ? {
+  const header = {
+    ...(switchToManual
+      ? {
         template: (() => {
-          switch (subscription) {
-            case 'free':
+          switch (level) {
+            case 0: // free
               return 'blue';
-            case 'experience':
+            case 1: // exprience
               return 'green';
-            case 'team':
+            case 2: // team
               return 'purple';
-            case 'enterprise':
+            case 3: // enterprice
               return 'red';
-            case 'custom':
+            case 4: // custom
               return 'turquoise';
           }
         })(),
@@ -47,20 +48,9 @@ export const FeishuNotification = async ({
         subtitle: {
           content: `工单ID: ${orderId}`,
           tag: 'plain_text'
-        },
-        text_tag_list: [
-          {
-            tag: 'text_tag',
-            text: {
-              // 标签内容
-              tag: 'plain_text',
-              content: subscription
-            },
-            color: 'neutral' // 标签颜色
-          }
-        ]
+        }
       }
-    : {
+      : {
         template: 'turquoise',
         title: {
           content: `有新的工单`,
@@ -70,7 +60,19 @@ export const FeishuNotification = async ({
           content: `工单ID: ${orderId}`,
           tag: 'plain_text'
         }
-      };
+      }),
+    text_tag_list: [
+      {
+        tag: 'text_tag',
+        text: {
+          // 标签内容
+          tag: 'plain_text',
+          content: `用户等级: ${subscription?.label}`
+        },
+        color: 'neutral' // 标签颜色
+      }
+    ]
+  };
 
   if (switchToManual) {
     await updateOrder({
@@ -88,7 +90,7 @@ export const FeishuNotification = async ({
       elements: [
         {
           tag: 'markdown',
-          content: `**用户ID:** ${payload.userId}\n**Domain:** ${payload.domain}\n所属分类: ${type}\n描述信息: ${description}\n订阅级别: ${subscription}`
+          content: `**用户ID:** ${payload.userId}\n**Domain:** ${payload.domain}\n所属分类: ${type}\n描述信息: ${description}`
         },
         {
           tag: 'action',

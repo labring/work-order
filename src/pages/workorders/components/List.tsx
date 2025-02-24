@@ -4,7 +4,7 @@ import MyIcon from '@/components/Icon';
 import MyMenu from '@/components/Menu';
 import MyTable from '@/components/Table';
 import { useToast } from '@/hooks/useToast';
-import { subscriptionMap } from '@/types/user';
+import useEnvStore from '@/store/env';
 import { WorkOrderDB, WorkOrderStatus } from '@/types/workorder';
 import { formatTime } from '@/utils/tools';
 import { Box, Button, Flex, FlexProps, MenuButton } from '@chakra-ui/react';
@@ -22,6 +22,7 @@ const OrderList = ({
   const router = useRouter();
   const { t } = useTranslation();
   const { toast } = useToast();
+  const { SystemEnv } = useEnvStore();
 
   const handleWorkOrder = useCallback(
     async (id: string, method: 'delete' | 'close') => {
@@ -31,17 +32,17 @@ const OrderList = ({
           updates:
             method === 'delete'
               ? {
-                  status: WorkOrderStatus.Deleted
-                }
+                status: WorkOrderStatus.Deleted
+              }
               : {
-                  status: WorkOrderStatus.Completed
-                }
+                status: WorkOrderStatus.Completed
+              }
         });
         toast({
           title: `success`,
           status: 'success'
         });
-      } catch (error) {}
+      } catch (error) { }
       refetchApps();
     },
     [refetchApps, toast]
@@ -121,12 +122,15 @@ const OrderList = ({
         }
       },
       {
-        title: 'subscription_level',
-        key: 'subscription_level',
+        title: 'user_level',
+        key: 'user_level',
         render: (item: WorkOrderDB) => {
           return (
             <Box color={'myGray.900'} fontSize={'md'} fontWeight={'bold'}>
-              {Object.keys(subscriptionMap)[item.userInfo.subscription]}
+              {
+                SystemEnv.config?.user.level.find((level) => level.priority === item.userInfo.level)
+                  ?.label
+              }
             </Box>
           );
         }

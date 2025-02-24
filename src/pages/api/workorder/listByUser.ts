@@ -1,7 +1,7 @@
 import { verifyAccessToken } from '@/services/backend/auth';
 import { jsonRes } from '@/services/backend/response';
 import { getAllOrdersByUserId } from '@/services/db/workorder';
-import { WorkOrderStatus, WorkOrderType } from '@/types/workorder';
+import { WorkOrderStatus } from '@/types/workorder';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -13,15 +13,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       orderType,
       startTime,
       endTime,
-      subLevel
+      level
     } = req.body as {
       page: number;
       pageSize: number;
-      orderType?: WorkOrderType;
+      orderType?: string;
       orderStatus?: WorkOrderStatus;
       startTime?: Date;
       endTime?: Date;
-      subLevel?: string;
+      level?: number;
     };
 
     const payload = await verifyAccessToken(req);
@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       orderStatus,
       orderType,
       startTime,
-      subLevel,
+      level,
       endTime
     });
 
