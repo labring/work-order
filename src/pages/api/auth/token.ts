@@ -17,7 +17,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const existingUser = await getUserById(payload.userId);
-    console.log(existingUser);
 
     if (existingUser) {
       const token = generateAccessToken(existingUser);

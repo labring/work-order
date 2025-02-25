@@ -39,35 +39,16 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GH_PAT }}
-      # - name: Login to Ali Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     registry: registry.cn-hangzhou.aliyuncs.com
-      #     username: ${{ secrets.ALI_HUB_USERNAME }}
-      #     password: ${{ secrets.ALI_HUB_PASSWORD }}
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKER_HUB_NAME }}
-      #     password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       # Set tag
       - name: Set image name and tag
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/workorder:latest" >> $GITHUB_ENV
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/workorder:latest" >> $GITHUB_ENV
-            # echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/workorder:latest" >> $GITHUB_ENV
-            # echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/workorder:latest" >> $GITHUB_ENV
-            # echo "Docker_Hub_Tag=${{ secrets.DOCKER_IMAGE_NAME }}/workorder:latest" >> $GITHUB_ENV
-            # echo "Docker_Hub_Latest=${{ secrets.DOCKER_IMAGE_NAME }}/workorder:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/work-order:latest" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/work-order:latest" >> $GITHUB_ENV
           else
-            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/workorder:${{ github.ref_name }}" >> $GITHUB_ENV
-            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/workorder:latest" >> $GITHUB_ENV
-            # echo "Ali_Tag=${{ secrets.ALI_IMAGE_NAME }}/workorder:${{ github.ref_name }}" >> $GITHUB_ENV
-            # echo "Ali_Latest=${{ secrets.ALI_IMAGE_NAME }}/workorder:latest" >> $GITHUB_ENV
-            # echo "Docker_Hub_Tag=${{ secrets.DOCKER_IMAGE_NAME }}/workorder:${{ github.ref_name }}" >> $GITHUB_ENV
-            # echo "Docker_Hub_Latest=${{ secrets.DOCKER_IMAGE_NAME }}/workorder:latest" >> $GITHUB_ENV
+            echo "Git_Tag=ghcr.io/${{ github.repository_owner }}/work-order:${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "Git_Latest=ghcr.io/${{ github.repository_owner }}/work-order:latest" >> $GITHUB_ENV
           fi
 
       - name: Build and publish image for main branch or tag push event
@@ -77,8 +58,8 @@ jobs:
           docker buildx build \
           -f Dockerfile \
           --platform linux/amd64,linux/arm64 \
-          --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/workorder" \
-          --label "org.opencontainers.image.description=labring workorder image" \
+          --label "org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/work-order" \
+          --label "org.opencontainers.image.description=labring work-order image" \
           --push \
           --cache-from=type=local,src=/tmp/.buildx-cache \
           --cache-to=type=local,dest=/tmp/.buildx-cache \
