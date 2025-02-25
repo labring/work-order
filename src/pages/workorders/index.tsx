@@ -9,12 +9,13 @@ import { serviceSideProps } from '@/utils/i18n';
 import { Box, Button, Flex, Image, Text } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'next-i18next';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import List from './components/List';
 import useSessionStore from '@/store/session';
 import useStore from '@/hooks/useStore';
 import { useRouter } from 'next/router';
 import useEnvStore from '@/store/env';
+import { getLangStore } from '@/utils/cookieUtils';
 
 function Home() {
   // const { Loading } = useLoading();
@@ -59,6 +60,22 @@ function Home() {
       refetchInterval: 6000
     }
   );
+
+  const lang = useMemo(() => {
+    return getLangStore() === 'en' ? 'en' : 'zh';
+  }, []);
+
+  const WorkorderTypeList =
+    SystemEnv.config?.workorder.type.map((item) => ({
+      id: item.id,
+      label: item.label[lang]
+    })) ?? [];
+
+  const UserLevelList =
+    SystemEnv.config?.userlevel.map((item, index) => ({
+      id: String(index),
+      label: item.label[lang]
+    })) ?? [];
 
   return (
     <Flex
@@ -109,18 +126,18 @@ function Home() {
           list={
             session?.isAdmin
               ? [
-                { id: 'all', label: 'All' },
-                { id: 'pending', label: 'Pending' },
-                { id: 'processing', label: 'Processing' },
-                { id: 'completed', label: 'Completed' },
-                { id: 'deleted', label: 'Deleted' }
-              ]
+                  { id: 'all', label: 'All' },
+                  { id: 'pending', label: 'Pending' },
+                  { id: 'processing', label: 'Processing' },
+                  { id: 'completed', label: 'Completed' },
+                  { id: 'deleted', label: 'Deleted' }
+                ]
               : [
-                { id: 'all', label: 'All' },
-                { id: 'pending', label: 'Pending' },
-                { id: 'processing', label: 'Processing' },
-                { id: 'completed', label: 'Completed' }
-              ]
+                  { id: 'all', label: 'All' },
+                  { id: 'pending', label: 'Pending' },
+                  { id: 'processing', label: 'Processing' },
+                  { id: 'completed', label: 'Completed' }
+                ]
           }
           activeId={orderStatus}
           onChange={(id: any) => {
@@ -150,7 +167,7 @@ function Home() {
           width={'110px'}
           height={'32px'}
           value={orderType}
-          list={[{ id: '', label: 'All' }].concat(SystemEnv.config?.workorder.type ?? [])}
+          list={[{ id: '', label: 'All' }].concat(WorkorderTypeList)}
           onchange={(val: any) => {
             setPage(1);
             setOrderType(val);
@@ -167,12 +184,7 @@ function Home() {
               width={'110px'}
               height={'32px'}
               value={userLevel}
-              list={[{ id: '', label: 'All' }].concat(
-                SystemEnv.config?.user.level.map((item) => ({
-                  id: String(item.priority),
-                  label: item.label
-                })) ?? []
-              )}
+              list={[{ id: '', label: 'All' }].concat(UserLevelList)}
               onchange={(val: any) => {
                 console.log(val);
                 setPage(1);

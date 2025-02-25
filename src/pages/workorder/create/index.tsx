@@ -10,13 +10,14 @@ import { serviceSideProps } from '@/utils/i18n';
 import { Box, BoxProps, Flex, Text, Textarea } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ErrorModal from './components/ErrorModal';
 import Header from './components/Header';
 import { uploadFile } from '@/api/platform';
 import useSessionStore from '@/store/session';
 import useEnvStore from '@/store/env';
+import { getLangStore } from '@/utils/cookieUtils';
 
 export default function EditOrder() {
   const [errorMessage, setErrorMessage] = useState('');
@@ -44,7 +45,7 @@ export default function EditOrder() {
   // form
   const formHook = useForm<WorkOrderEditForm>({
     defaultValues: {
-      type: SystemEnv.config?.workorder.type[0].id || '',
+      type: SystemEnv.config?.workorder.type[0].id,
       description: ''
     }
   });
@@ -123,6 +124,16 @@ export default function EditOrder() {
     </Box>
   );
 
+  const lang = useMemo(() => {
+    return getLangStore() === 'en' ? 'en' : 'zh';
+  }, []);
+
+  const WorkOrderTypeList =
+    SystemEnv.config?.workorder.type.map((item) => ({
+      id: item.id,
+      label: item.label[lang]
+    })) ?? [];
+
   return (
     <Box
       flexDirection={'column'}
@@ -160,7 +171,7 @@ export default function EditOrder() {
               <MySelect
                 width={'300px'}
                 value={formHook.getValues('type')}
-                list={SystemEnv.config?.workorder.type || []}
+                list={WorkOrderTypeList}
                 onchange={(val: any) => {
                   formHook.setValue('type', val);
                 }}

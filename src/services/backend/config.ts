@@ -1,21 +1,25 @@
-'use client';
 import { readFileSync } from 'fs';
 
 export type ConfigType = {
-  title: string;
+  title: {
+    en: string;
+    zh: string;
+  };
   workorder: {
     type: {
       id: string;
-      label: string;
+      label: {
+        en: string;
+        zh: string;
+      };
     }[];
   };
-  user: {
-    level: {
-      id: string;
-      label: string;
-      priority: number;
-    }[];
-  };
+  userlevel: {
+    label: {
+      en: string;
+      zh: string;
+    };
+  }[];
 };
 
 export const initConfig = () => {

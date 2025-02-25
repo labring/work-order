@@ -6,6 +6,7 @@ import MyTable from '@/components/Table';
 import { useToast } from '@/hooks/useToast';
 import useEnvStore from '@/store/env';
 import { WorkOrderDB, WorkOrderStatus } from '@/types/workorder';
+import { getLangStore } from '@/utils/cookieUtils';
 import { formatTime } from '@/utils/tools';
 import { Box, Button, Flex, FlexProps, MenuButton } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
@@ -24,6 +25,10 @@ const OrderList = ({
   const { toast } = useToast();
   const { SystemEnv } = useEnvStore();
 
+  const lang = useMemo(() => {
+    return getLangStore() === 'en' ? 'en' : 'zh';
+  }, []);
+
   const handleWorkOrder = useCallback(
     async (id: string, method: 'delete' | 'close') => {
       try {
@@ -32,17 +37,17 @@ const OrderList = ({
           updates:
             method === 'delete'
               ? {
-                status: WorkOrderStatus.Deleted
-              }
+                  status: WorkOrderStatus.Deleted
+                }
               : {
-                status: WorkOrderStatus.Completed
-              }
+                  status: WorkOrderStatus.Completed
+                }
         });
         toast({
           title: `success`,
           status: 'success'
         });
-      } catch (error) { }
+      } catch (error) {}
       refetchApps();
     },
     [refetchApps, toast]
@@ -127,10 +132,7 @@ const OrderList = ({
         render: (item: WorkOrderDB) => {
           return (
             <Box color={'myGray.900'} fontSize={'md'} fontWeight={'bold'}>
-              {
-                SystemEnv.config?.user.level.find((level) => level.priority === item.userInfo.level)
-                  ?.label
-              }
+              {SystemEnv.config?.userlevel[item.userInfo.level].label[lang]}
             </Box>
           );
         }

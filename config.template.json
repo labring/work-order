@@ -1,52 +1,70 @@
 {
-  "title": "FastGPT workorder",
+  "title": {
+    "en": "FastGPT | WorkOrder",
+    "zh": "FastGPT | 工单"
+  },
   "workorder": {
     "type": [
       {
         "id": "app",
-        "label": "App"
+        "label": {
+          "en": "App",
+          "zh": "应用"
+        }
       },
       {
         "id": "dataset",
-        "label": "Dataset"
+        "label": {
+          "en": "Dataset",
+          "zh": "知识库"
+        }
       },
       {
         "id": "account",
-        "label": "Account"
+        "label": {
+          "en": "Account",
+          "zh": "账号"
+        }
       },
       {
         "id": "commercial",
-        "label": "Commercial"
+        "label": {
+          "en": "Commercial",
+          "zh": "商业版"
+        }
       }
     ]
   },
-  "user": {
-    "level": [
-      {
-        "id": "free",
-        "label": "Free",
-        "priority": 0
-      },
-      {
-        "id": "experienced",
-        "label": "Experienced",
-        "priority": 1
-      },
-      {
-        "id": "team",
-        "label": "Team",
-        "priority": 2
-      },
-      {
-        "id": "enterprise",
-        "label": "Enterprise",
-        "priority": 3
-      },
-      {
-        "id": "custom",
-        "label": "custom",
-        "priority": 4
+  "userlevel": [
+    {
+      "label": {
+        "en": "Free",
+        "zh": "免费版"
       }
-    ]
-  }
+    },
+    {
+      "label": {
+        "en": "Experience",
+        "zh": "体验版"
+      }
+    },
+    {
+      "label": {
+        "en": "Team",
+        "zh": "团队版"
+      }
+    },
+    {
+      "label": {
+        "en": "Enterprise",
+        "zh": "企业版"
+      }
+    },
+    {
+      "label": {
+        "en": "custom",
+        "zh": "自定义"
+      }
+    }
+  ]
 }
