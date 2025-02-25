@@ -2,14 +2,13 @@ import { verifyAccessToken, verifyToken } from '@/services/backend/auth';
 import { jsonRes } from '@/services/backend/response';
 import { createOrder } from '@/services/db/workorder';
 import { FeishuNotification } from '@/services/platform/feishu';
-import { subscriptionMap } from '@/types/user';
-import { WorkOrderDB, WorkOrderStatus, WorkOrderType } from '@/types/workorder';
+import { WorkOrderDB, WorkOrderStatus } from '@/types/workorder';
 import { customAlphabet } from 'nanoid';
 import { NextApiRequest, NextApiResponse } from 'next';
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz', 12);
 
 export type CreateWorkOrderParams = {
-  type: WorkOrderType;
+  type: string;
   description: string;
   appendix?: string[];
   token: string;
@@ -45,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         userId: userInfo.userId,
         isAdmin: userInfo.isAdmin,
         domain: userInfo.domain,
-        subscription: subscriptionMap[userInfo.subscription as keyof typeof subscriptionMap] ?? 0
+        level: userInfo.level
       }
     };
 
@@ -54,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       type: workorder.type,
       description: workorder.description,
       orderId: workorder.orderId,
-      subscription: userInfo.subscription,
+      level: userInfo.level,
       switchToManual: false,
       payload: userInfo
     });

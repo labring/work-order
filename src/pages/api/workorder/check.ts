@@ -186,7 +186,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const result = await data.json();
 
     jsonRes(res, {
-      data: 'success'
+      data: result
     });
   } catch (error) {
     console.log(error);

@@ -4,8 +4,9 @@ import MyIcon from '@/components/Icon';
 import MyMenu from '@/components/Menu';
 import MyTable from '@/components/Table';
 import { useToast } from '@/hooks/useToast';
-import { subscriptionMap } from '@/types/user';
+import useEnvStore from '@/store/env';
 import { WorkOrderDB, WorkOrderStatus } from '@/types/workorder';
+import { getLangStore } from '@/utils/cookieUtils';
 import { formatTime } from '@/utils/tools';
 import { Box, Button, Flex, FlexProps, MenuButton } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
@@ -22,6 +23,11 @@ const OrderList = ({
   const router = useRouter();
   const { t } = useTranslation();
   const { toast } = useToast();
+  const { SystemEnv } = useEnvStore();
+
+  const lang = useMemo(() => {
+    return getLangStore() === 'en' ? 'en' : 'zh';
+  }, []);
 
   const handleWorkOrder = useCallback(
     async (id: string, method: 'delete' | 'close') => {
@@ -121,12 +127,12 @@ const OrderList = ({
         }
       },
       {
-        title: 'subscription_level',
-        key: 'subscription_level',
+        title: 'user_level',
+        key: 'user_level',
         render: (item: WorkOrderDB) => {
           return (
             <Box color={'myGray.900'} fontSize={'md'} fontWeight={'bold'}>
-              {Object.keys(subscriptionMap)[item.userInfo.subscription]}
+              {SystemEnv.config?.userlevel[item.userInfo.level].label[lang]}
             </Box>
           );
         }

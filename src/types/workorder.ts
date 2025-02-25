@@ -5,7 +5,7 @@ export type WorkOrderDB = {
   _id?: ObjectId; // only
   userId: string; // only
   orderId: string; // only
-  type: WorkOrderType;
+  type: string;
   createTime: Date;
   updateTime: Date;
   completeTime?: Date;
@@ -31,17 +31,8 @@ export type WorkOrderDialog = {
   isRecall?: boolean;
 };
 
-export enum WorkOrderType {
-  All = 'all', // 全部
-  App = 'app', // 应用
-  Dataset = 'dataset', // 知识库
-  Account = 'account', // 账户
-  Commercial = 'commercial', // 商业版
-  Other = 'other' // 其他
-}
-
 export type WorkOrderEditForm = {
-  type: WorkOrderType;
+  type: string;
   description: string;
 };
 

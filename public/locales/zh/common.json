@@ -69,9 +69,13 @@
   "userId": "用户ID",
   "user_recalled_a_message": "撤回了一条消息",
   "you_recalled_a_message": "你撤回一条消息",
-  "app": "应用",
-  "dataset": "知识库",
-  "account": "账户",
-  "commercial": "商业版",
-  "subscription_level": "订阅等级"
+  "App": "应用",
+  "Dataset": "知识库",
+  "Account": "账户",
+  "Commercial": "商业版",
+  "Free": "免费版",
+  "Team": "团队版",
+  "Enterprise": "企业版",
+  "Experience": "体验版",
+  "user_level": "用户等级"
 }

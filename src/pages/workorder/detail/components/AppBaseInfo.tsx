@@ -170,8 +170,8 @@ const AppBaseInfo = ({ app }: { app: WorkOrderDB }) => {
             <Box onClick={() => copyData(workorderInfo?.user?.domain || '')}>
               domain: {workorderInfo?.user?.domain}
             </Box>
-            <Box onClick={() => copyData(workorderInfo?.user?.subscription || '')}>
-              subscription: {workorderInfo?.user?.subscription}
+            <Box onClick={() => copyData(String(workorderInfo?.user?.level || ''))}>
+              level: {workorderInfo?.user?.level}
             </Box>
             <Box onClick={() => copyData(workorderInfo?.workorderLink || '')}>
               workorderLink: {workorderInfo?.workorderLink}

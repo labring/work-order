@@ -1,0 +1,70 @@
+{
+  "title": {
+    "en": "FastGPT | WorkOrder",
+    "zh": "FastGPT | 工单"
+  },
+  "workorder": {
+    "type": [
+      {
+        "id": "app",
+        "label": {
+          "en": "App",
+          "zh": "应用"
+        }
+      },
+      {
+        "id": "dataset",
+        "label": {
+          "en": "Dataset",
+          "zh": "知识库"
+        }
+      },
+      {
+        "id": "account",
+        "label": {
+          "en": "Account",
+          "zh": "账号"
+        }
+      },
+      {
+        "id": "commercial",
+        "label": {
+          "en": "Commercial",
+          "zh": "商业版"
+        }
+      }
+    ]
+  },
+  "userlevel": [
+    {
+      "label": {
+        "en": "Free",
+        "zh": "免费版"
+      }
+    },
+    {
+      "label": {
+        "en": "Experience",
+        "zh": "体验版"
+      }
+    },
+    {
+      "label": {
+        "en": "Team",
+        "zh": "团队版"
+      }
+    },
+    {
+      "label": {
+        "en": "Enterprise",
+        "zh": "企业版"
+      }
+    },
+    {
+      "label": {
+        "en": "custom",
+        "zh": "自定义"
+      }
+    }
+  ]
+}

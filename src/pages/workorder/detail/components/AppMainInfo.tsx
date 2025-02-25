@@ -5,22 +5,11 @@ import Markdown from '@/components/Markdown';
 import { useSelectFile } from '@/hooks/useSelectFile';
 import { useToast } from '@/hooks/useToast';
 import useSessionStore from '@/store/session';
-import { subscriptionMap } from '@/types/user';
 import { WorkOrderDB, WorkOrderDialog } from '@/types/workorder';
 import { isURL } from '@/utils/file';
 import { formatTime } from '@/utils/tools';
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Icon,
-  Image,
-  Spinner,
-  Text,
-  Textarea,
-  keyframes
-} from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Icon, Image, Spinner, Text, Textarea } from '@chakra-ui/react';
+import { keyframes } from '@chakra-ui/system';
 import { fetchEventSource } from '@fortaine/fetch-event-source';
 import { throttle } from 'lodash';
 import { useTranslation } from 'next-i18next';
@@ -290,7 +279,7 @@ const AppMainInfo = ({
         description: app.description,
         orderId: app.orderId,
         switchToManual: true,
-        subscription: Object.keys(subscriptionMap)[app.userInfo.subscription]
+        level: app.userInfo.level
       });
       toast({
         title: t('Notification SwitchToManual Tips'),
@@ -401,8 +390,8 @@ const AppMainInfo = ({
             return (
               <Box key={item.time.toString() + index}>
                 {index === 0 ||
-                (dialogs?.[index - 1] &&
-                  new Date(dialogs[index - 1].time).getTime() <
+                  (dialogs?.[index - 1] &&
+                    new Date(dialogs[index - 1].time).getTime() <
                     new Date(item.time).getTime() - 5 * 60 * 1000) ? (
                   <Flex
                     fontSize={'12px'}
@@ -469,8 +458,8 @@ const AppMainInfo = ({
                           {item.userId === session?.userId
                             ? t('you_recalled_a_message')
                             : item.isAdmin
-                            ? t('user_recalled_a_message')
-                            : t('user_recalled_a_message')}
+                              ? t('user_recalled_a_message')
+                              : t('user_recalled_a_message')}
                         </Text>
                       ) : (
                         <>

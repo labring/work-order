@@ -1,7 +1,6 @@
-import { WorkOrderDB, WorkOrderDialog, WorkOrderStatus, WorkOrderType } from '@/types/workorder';
+import { WorkOrderDB, WorkOrderDialog, WorkOrderStatus } from '@/types/workorder';
 import { connectToDatabase } from './mongodb';
 import { getUserById } from './user';
-import { subscriptionMap } from '@/types/user';
 
 async function connectOrderCollection() {
   const client = await connectToDatabase();
@@ -27,20 +26,20 @@ export async function getAllOrdersByUserId({
   userId,
   page,
   pageSize,
-  orderType = WorkOrderType.All,
+  orderType,
   startTime,
   endTime,
   orderStatus = WorkOrderStatus.All,
-  subLevel
+  level: level
 }: {
   userId: string;
   page: number;
   pageSize: number;
-  orderType?: WorkOrderType;
+  orderType?: string;
   startTime?: Date;
   endTime?: Date;
   orderStatus?: WorkOrderStatus;
-  subLevel?: string;
+  level?: number;
 }) {
   const collection = await connectOrderCollection();
 
@@ -50,7 +49,7 @@ export async function getAllOrdersByUserId({
   const baseQuery = user?.isAdmin ? {} : { userId, status: { $ne: WorkOrderStatus.Deleted } };
 
   let typeQuery = {};
-  if (orderType !== 'all') {
+  if (orderType) {
     typeQuery = { type: orderType };
   }
 
@@ -70,9 +69,9 @@ export async function getAllOrdersByUserId({
   }
 
   let subLevelQuery = {};
-  if (subLevel && subLevel !== 'all') {
+  if (level) {
     subLevelQuery = {
-      'userInfo.subscription': subscriptionMap[subLevel as keyof typeof subscriptionMap] || 0
+      'userInfo.level': level
     };
   }
 
@@ -82,8 +81,8 @@ export async function getAllOrdersByUserId({
     skip: skip,
     limit: pageSize,
     sort: {
-      createTime: -1,
-      'userInfo.subscription': -1
+      'userInfo.level': -1,
+      createTime: -1
     } as Record<string, 1 | -1>,
     projection: { _id: 0 }
   };

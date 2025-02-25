@@ -2,15 +2,14 @@ import { verifyAccessToken } from '@/services/backend/auth';
 import { jsonRes } from '@/services/backend/response';
 import { ApiResp } from '@/services/kubernet';
 import { FeishuNotification } from '@/services/platform/feishu';
-import { WorkOrderType } from '@/types/workorder';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export type FeishuNotificationParams = {
-  type: WorkOrderType;
+  type: string;
   description: string;
   orderId: string;
   switchToManual?: boolean;
-  subscription: string;
+  level: number;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResp>) {
@@ -20,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       description,
       orderId,
       switchToManual = false,
-      subscription
+      level
     } = req.body as FeishuNotificationParams;
 
     const payload = await verifyAccessToken(req);
@@ -35,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       description,
       orderId,
       switchToManual,
-      subscription,
+      level,
       payload
     });
     jsonRes(res, { data: result });

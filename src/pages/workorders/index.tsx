@@ -4,24 +4,24 @@ import Pagination from '@/components/Pagination';
 import MySelect from '@/components/Select';
 import SelectDateRange from '@/components/SelectDateRange';
 import Tabs from '@/components/Tabs';
-import { OrderTypeList } from '@/constants/workorder';
-import { useLoading } from '@/hooks/useLoading';
-import { WorkOrderStatus, WorkOrderType } from '@/types/workorder';
+import { WorkOrderStatus } from '@/types/workorder';
 import { serviceSideProps } from '@/utils/i18n';
 import { Box, Button, Flex, Image, Text } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'next-i18next';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import List from './components/List';
 import useSessionStore from '@/store/session';
 import useStore from '@/hooks/useStore';
 import { useRouter } from 'next/router';
-import { subscriptionLevelList, subscriptionMap } from '@/types/user';
+import useEnvStore from '@/store/env';
+import { getLangStore } from '@/utils/cookieUtils';
 
 function Home() {
-  const { Loading } = useLoading();
+  // const { Loading } = useLoading();
+  const { SystemEnv } = useEnvStore();
   const { t } = useTranslation();
-  const [initialized, setInitialized] = useState(false);
+  // const [initialized, setInitialized] = useState(false);
   const router = useRouter();
   const [page, setPage] = useState(() => {
     const queryPage = Number(router.query.page);
@@ -32,8 +32,9 @@ function Home() {
     (router.query?.status as WorkOrderStatus) || WorkOrderStatus.All
   );
 
-  const [orderType, setOrderType] = useState<WorkOrderType>(WorkOrderType.All);
-  const [subLevel, setSubLevel] = useState<string>('all');
+  const [orderType, setOrderType] = useState<string>('');
+  const [userLevel, setUserLevel] = useState<string>('');
+
   const [startTime, setStartTime] = useState(() => {
     const currentDate = new Date();
     currentDate.setMonth(currentDate.getMonth() - 1);
@@ -43,25 +44,38 @@ function Home() {
   const session = useStore(useSessionStore, (state) => state.session);
 
   const { data, refetch } = useQuery(
-    ['getWorkOrderList', page, pageSize, orderStatus, orderType, startTime, endTime, subLevel],
+    ['getWorkOrderList', page, pageSize, orderStatus, orderType, startTime, endTime, userLevel],
     () =>
       getWorkOrderList({
         page,
         pageSize,
         orderStatus,
         orderType,
-        subLevel,
+        level: Number(userLevel),
         startTime,
         endTime
       }),
     {
       enabled: !!session,
-      refetchInterval: 6000,
-      onSettled() {
-        setInitialized(true);
-      }
+      refetchInterval: 6000
     }
   );
+
+  const lang = useMemo(() => {
+    return getLangStore() === 'en' ? 'en' : 'zh';
+  }, []);
+
+  const WorkorderTypeList =
+    SystemEnv.config?.workorder.type.map((item) => ({
+      id: item.id,
+      label: item.label[lang]
+    })) ?? [];
+
+  const UserLevelList =
+    SystemEnv.config?.userlevel.map((item, index) => ({
+      id: String(index),
+      label: item.label[lang]
+    })) ?? [];
 
   return (
     <Flex
@@ -153,7 +167,7 @@ function Home() {
           width={'110px'}
           height={'32px'}
           value={orderType}
-          list={[{ id: 'all', label: 'All' }].concat(OrderTypeList)}
+          list={[{ id: '', label: 'All' }].concat(WorkorderTypeList)}
           onchange={(val: any) => {
             setPage(1);
             setOrderType(val);
@@ -162,19 +176,19 @@ function Home() {
         {session?.isAdmin && (
           <>
             <Text ml="32px" mr="12px">
-              {t('subscription_level')}
+              {t('user_level')}
             </Text>
 
             <MySelect
               fontSize={'12px'}
               width={'110px'}
               height={'32px'}
-              value={subLevel}
-              list={[{ id: 'all', label: 'All' }].concat(subscriptionLevelList)}
+              value={userLevel}
+              list={[{ id: '', label: 'All' }].concat(UserLevelList)}
               onchange={(val: any) => {
                 console.log(val);
                 setPage(1);
-                setSubLevel(val);
+                setUserLevel(val);
               }}
             />
           </>
@@ -219,5 +233,4 @@ export async function getServerSideProps(content: any) {
     }
   };
 }
-
 export default Home;

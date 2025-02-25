@@ -1,6 +1,6 @@
 import { CreateWorkOrderParams } from '@/pages/api/workorder/create';
 import { GET, POST } from '@/services/request';
-import { WorkOrderDB, WorkOrderStatus, WorkOrderType } from '@/types/workorder';
+import { WorkOrderDB, WorkOrderStatus } from '@/types/workorder';
 
 export const createWorkOrder = (payload: CreateWorkOrderParams) =>
   POST<{ orderId: string }>('/api/workorder/create', payload);
@@ -8,11 +8,11 @@ export const createWorkOrder = (payload: CreateWorkOrderParams) =>
 export const getWorkOrderList = (payload: {
   page: number;
   pageSize: number;
-  orderType?: WorkOrderType;
+  orderType?: string;
   orderStatus?: WorkOrderStatus;
   startTime?: Date;
   endTime?: Date;
-  subLevel?: string;
+  level?: number;
 }) => POST<{ totalCount: number; orders: WorkOrderDB[] }>('/api/workorder/listByUser', payload);
 
 export const getWorkOrderById = (payload: { orderId: string }) =>
