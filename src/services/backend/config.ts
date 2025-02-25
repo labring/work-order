@@ -22,9 +22,20 @@ export type ConfigType = {
   }[];
 };
 
+const filePathList = ['config.json', 'config.local.json'];
 export const initConfig = () => {
   if (globalThis.SystemConfig) return globalThis.SystemConfig;
-  const content = readFileSync('config.local.json', 'utf8');
+  const content = (() => {
+    for (const filePath of filePathList) {
+      try {
+        return readFileSync(filePath, 'utf-8');
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    throw new Error('config file not found');
+  })();
+
   globalThis.SystemConfig = JSON.parse(content) as ConfigType;
   return globalThis.SystemConfig;
 };

@@ -1,0 +1,22 @@
+services:
+  workorder:
+    image: workorder
+    ports:
+      - '3002:3000'
+    volumes:
+      - ./config.local.json:/app/config.json
+    environment:
+      # - MONGODB_URI=mongodb://myusername:mypassword@mongo:27017/fastgpt-workorder?authSource=admin&directConnection=true
+      # - MINIO_URL=minio
+      # - MINIO_BUCKET_NAME=fastgpt-workorder
+      # - MINIO_ACCESS_KEY=minioadmin
+      # - MINIO_SECRET_KEY=minioadmin
+      # - MINIO_PORT=9000
+      # - MINIO_USE_SSL=false
+      # - JWT_SECRET=aaaaaa
+      # - ADMIN_FEISHU_URL=https://open.feishu.cn/open-apis/bot/v2/hook/39089afe-bad6-4888-a3be-f4ddf88a46a4
+      # - ADMIN_FEISHU_CALLBACK_URL=http://localhost:3002
+      # - ADMIN_API_TOKEN=admin-token
+      # - FASTGPT_API_URL=
+      # - FASTGPT_API_KEY=
+      # - FASTGPT_API_LIMIT=
