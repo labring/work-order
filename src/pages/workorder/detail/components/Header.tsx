@@ -3,7 +3,6 @@ import AppStatusTag from '@/components/AppStatusTag';
 import MyIcon from '@/components/Icon';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useToast } from '@/hooks/useToast';
-import { useGlobalStore } from '@/store/global';
 import { WorkOrderDB, WorkOrderStatus } from '@/types/workorder';
 import { Box, Button, Flex } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
@@ -94,7 +93,7 @@ const Header = ({
           </Button>
         </Box>
       )}
-      {app.status !== WorkOrderStatus.Completed && app.status !== WorkOrderStatus.Deleted && (
+      {app?.status !== WorkOrderStatus.Completed && app?.status !== WorkOrderStatus.Deleted && (
         <Button
           _focusVisible={{ boxShadow: '' }}
           mr={5}
