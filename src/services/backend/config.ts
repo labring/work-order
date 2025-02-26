@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
 export type ConfigType = {
   title: {
@@ -23,19 +23,20 @@ export type ConfigType = {
 };
 
 const filePathList = ['config.json', 'config.local.json'];
+
 export const initConfig = () => {
   if (globalThis.SystemConfig) return globalThis.SystemConfig;
   const content = (() => {
     for (const filePath of filePathList) {
-      try {
-        return readFileSync(filePath, 'utf-8');
-      } catch (error) {
-        console.log(error);
-      }
+      if (existsSync(filePath)) return readFileSync(filePath);
     }
     throw new Error('config file not found');
   })();
 
-  globalThis.SystemConfig = JSON.parse(content) as ConfigType;
+  if (!content) {
+    return Promise.reject(new Error('config file not found'));
+  }
+
+  globalThis.SystemConfig = JSON.parse(content.toString()) as ConfigType;
   return globalThis.SystemConfig;
 };

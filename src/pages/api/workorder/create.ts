@@ -1,4 +1,4 @@
-import { verifyAccessToken, verifyToken } from '@/services/backend/auth';
+import { verifyToken } from '@/services/backend/auth';
 import { jsonRes } from '@/services/backend/response';
 import { createOrder } from '@/services/db/workorder';
 import { FeishuNotification } from '@/services/platform/feishu';
@@ -17,9 +17,8 @@ export type CreateWorkOrderParams = {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { type, description, appendix, token } = req.body as CreateWorkOrderParams;
-    const payload = await verifyAccessToken(req);
     const userInfo = await verifyToken(token);
-    if (!payload || !userInfo) {
+    if (!userInfo) {
       return jsonRes(res, {
         code: 401,
         message: "'token is invaild'"
@@ -27,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const workorder: WorkOrderDB = {
-      userId: payload.userId,
+      userId: userInfo.userId,
       orderId: nanoid(),
       type,
       updateTime: new Date(),
@@ -55,7 +54,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       orderId: workorder.orderId,
       level: userInfo.level,
       switchToManual: false,
-      payload: userInfo
+      payload: {
+        userId: userInfo.userId,
+        domain: userInfo.domain
+      }
     });
 
     jsonRes(res, {

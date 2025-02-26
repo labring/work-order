@@ -41,16 +41,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       isAdmin
     });
 
-    const accessToken = generateAccessToken({
-      userId: payload.userId,
-      username: payload.username,
-      isAdmin
-    });
-
     jsonRes<AppSession>(res, {
       code: 200,
       data: {
-        token: accessToken,
+        token,
         userId: payload.userId,
         isAdmin: false,
         username: payload.username

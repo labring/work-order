@@ -1,12 +1,14 @@
 import { updateOrder } from '../db/workorder';
-import { TokenPayload } from '@/types/user';
 
 export type FeishuNotificationParams = {
   type: string;
   description: string;
   orderId: string;
   switchToManual?: boolean;
-  payload: TokenPayload;
+  payload: {
+    userId: string;
+    domain: string;
+  };
   level: number;
 };
 

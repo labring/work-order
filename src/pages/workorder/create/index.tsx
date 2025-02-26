@@ -27,16 +27,19 @@ export default function EditOrder() {
   const { Loading, setIsLoading } = useLoading();
   const router = useRouter();
   const [forceUpdate, setForceUpdate] = useState(false);
-  const { token } = router.query;
-  const { authUser } = useSessionStore();
-  const { SystemEnv } = useEnvStore();
+  const { session, authUser } = useSessionStore();
+
   useEffect(() => {
-    if (typeof token === 'string') authUser(token);
-    else
-      toast({
-        title: 'Token error'
-      });
-  }, [token]);
+    if (typeof router.query.token === 'string') authUser(router.query.token);
+  }, [String(router.query.token)]);
+
+  const token = useMemo(() => {
+    if (router.query.token) {
+      return router.query.token as string;
+    } else return session?.token;
+  }, [router.query.token, session?.token]);
+
+  const { SystemEnv } = useEnvStore();
 
   const { openConfirm, ConfirmChild } = useConfirm({
     content: t('Are you sure you want to submit this work order')

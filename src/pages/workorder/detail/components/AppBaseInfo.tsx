@@ -1,9 +1,11 @@
-import { getFileUrl } from '@/api/platform';
+import { getFileUrl, getSystemEnv } from '@/api/platform';
 import { findUserById } from '@/api/user';
 import { FileImgs } from '@/components/FileSelect';
 import MyIcon from '@/components/Icon';
+import useEnvStore from '@/store/env';
 import useSessionStore from '@/store/session';
 import { WorkOrderDB } from '@/types/workorder';
+import { getLangStore } from '@/utils/cookieUtils';
 import { useCopyData } from '@/utils/tools';
 import { Box, Flex, Icon, Tag, Text } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
@@ -39,6 +41,12 @@ const AppBaseInfo = ({ app }: { app: WorkOrderDB }) => {
     }
   );
 
+  const lang = useMemo(() => {
+    return getLangStore() === 'en' ? 'en' : 'zh';
+  }, []);
+
+  const { SystemEnv } = useEnvStore();
+
   return (
     <Box p="24px" flexDirection={'column'} fontSize={'12px'} color={'#5A646E'} fontWeight={500}>
       <Flex gap={'8px'} py="8px" alignItems={'center'}>
@@ -68,7 +76,7 @@ const AppBaseInfo = ({ app }: { app: WorkOrderDB }) => {
           py={1}
           color={'#24282C'}
         >
-          {app?.type}
+          {SystemEnv.config?.workorder.type.find((item) => item.id === app?.type)?.label[lang]}
         </Tag>
       </Flex>
       {appendixs?.length > 0 && (
@@ -171,7 +179,7 @@ const AppBaseInfo = ({ app }: { app: WorkOrderDB }) => {
               domain: {workorderInfo?.user?.domain}
             </Box>
             <Box onClick={() => copyData(String(workorderInfo?.user?.level || ''))}>
-              level: {workorderInfo?.user?.level}
+              level: {SystemEnv.config?.userlevel[workorderInfo?.user?.level ?? 0].label[lang]}
             </Box>
             <Box onClick={() => copyData(workorderInfo?.workorderLink || '')}>
               workorderLink: {workorderInfo?.workorderLink}

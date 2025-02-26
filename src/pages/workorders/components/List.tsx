@@ -24,6 +24,7 @@ const OrderList = ({
   const { t } = useTranslation();
   const { toast } = useToast();
   const { SystemEnv } = useEnvStore();
+  console.log(SystemEnv);
 
   const lang = useMemo(() => {
     return getLangStore() === 'en' ? 'en' : 'zh';
@@ -121,7 +122,7 @@ const OrderList = ({
         render: (item: WorkOrderDB) => {
           return (
             <Box color={'myGray.900'} fontSize={'md'} fontWeight={'bold'}>
-              {item.type}
+              {SystemEnv.config?.workorder.type.find((i) => i.id === item?.type)?.label[lang]}
             </Box>
           );
         }
