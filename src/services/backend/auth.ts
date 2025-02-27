@@ -1,5 +1,5 @@
-import { TokenPayload, UserDB } from '@/types/user';
-import { verify, sign, JwtPayload } from 'jsonwebtoken';
+import { TokenPayload } from '@/types/user';
+import { verify, sign } from 'jsonwebtoken';
 import type { NextApiRequest } from 'next';
 import { ERROR_ENUM } from '../error';
 
@@ -32,3 +32,14 @@ export const generateAccessToken = (props: {
   username: string;
   isAdmin: boolean;
 }) => sign(props, jwtSecret, { expiresIn: '7d' });
+
+export const verifyAdmin = async (req: NextApiRequest) => {
+  if (!req.headers) return Promise.reject(ERROR_ENUM.unAuthorization);
+  const { authorization } = req.headers;
+  if (!authorization) return Promise.reject(ERROR_ENUM.unAuthorization);
+  if (authorization === process.env.ADMIN_API_TOKEN) {
+    return Promise.resolve(true);
+  } else {
+    return Promise.resolve(false);
+  }
+};
