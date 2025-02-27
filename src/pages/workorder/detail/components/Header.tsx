@@ -1,8 +1,8 @@
 import { updateWorkOrderById } from '@/api/workorder';
 import AppStatusTag from '@/components/AppStatusTag';
 import MyIcon from '@/components/Icon';
+import { useConfirm } from '@/hooks/useConfirm';
 import { useToast } from '@/hooks/useToast';
-import { useGlobalStore } from '@/store/global';
 import { WorkOrderDB, WorkOrderStatus } from '@/types/workorder';
 import { Box, Button, Flex } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
@@ -20,8 +20,17 @@ const Header = ({
 }) => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { lastRoute } = useGlobalStore();
   const { toast } = useToast();
+
+  const { ConfirmChild, openConfirm } = useConfirm({
+    title: t('delete_confirm'),
+    content: t('delete_confirm')
+  });
+
+  const { ConfirmChild: CloseConfirmChild, openConfirm: openCloseConfirm } = useConfirm({
+    content: t('close_confirm'),
+    title: t('close_confirm')
+  });
 
   const handleWorkOrder = useCallback(
     async (id: string, method: 'delete' | 'close') => {
@@ -84,18 +93,20 @@ const Header = ({
           </Button>
         </Box>
       )}
-      <Button
-        _focusVisible={{ boxShadow: '' }}
-        mr={5}
-        h={'40px'}
-        borderColor={'myGray.200'}
-        leftIcon={<MyIcon name={'close'} w={'16px'} />}
-        variant={'base'}
-        bg={'white'}
-        onClick={() => handleWorkOrder(app.orderId, 'close')}
-      >
-        {t('Close')}
-      </Button>
+      {app?.status !== WorkOrderStatus.Completed && app?.status !== WorkOrderStatus.Deleted && (
+        <Button
+          _focusVisible={{ boxShadow: '' }}
+          mr={5}
+          h={'40px'}
+          borderColor={'myGray.200'}
+          leftIcon={<MyIcon name={'close'} w={'16px'} />}
+          variant={'base'}
+          bg={'white'}
+          onClick={() => openCloseConfirm(() => handleWorkOrder(app.orderId, 'close'))()}
+        >
+          {t('Close')}
+        </Button>
+      )}
       <Button
         h={'40px'}
         borderColor={'myGray.200'}
@@ -105,10 +116,12 @@ const Header = ({
         _hover={{
           color: '#FF324A'
         }}
-        onClick={() => handleWorkOrder(app.orderId, 'delete')}
+        onClick={() => openConfirm(() => handleWorkOrder(app.orderId, 'delete'))()}
       >
         {t('Delete')}
       </Button>
+      <ConfirmChild />
+      <CloseConfirmChild />
     </Flex>
   );
 };

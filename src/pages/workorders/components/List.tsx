@@ -5,6 +5,7 @@ import MyMenu from '@/components/Menu';
 import MyTable from '@/components/Table';
 import { useToast } from '@/hooks/useToast';
 import useEnvStore from '@/store/env';
+import useSessionStore from '@/store/session';
 import { WorkOrderDB, WorkOrderStatus } from '@/types/workorder';
 import { getLangStore } from '@/utils/cookieUtils';
 import { formatTime } from '@/utils/tools';
@@ -24,7 +25,7 @@ const OrderList = ({
   const { t } = useTranslation();
   const { toast } = useToast();
   const { SystemEnv } = useEnvStore();
-  console.log(SystemEnv);
+  const { session } = useSessionStore();
 
   const lang = useMemo(() => {
     return getLangStore() === 'en' ? 'en' : 'zh';
@@ -127,17 +128,21 @@ const OrderList = ({
           );
         }
       },
-      {
-        title: 'user_level',
-        key: 'user_level',
-        render: (item: WorkOrderDB) => {
-          return (
-            <Box color={'myGray.900'} fontSize={'md'} fontWeight={'bold'}>
-              {SystemEnv.config?.userlevel[item.userInfo.level].label[lang]}
-            </Box>
-          );
-        }
-      },
+      ...(session?.isAdmin
+        ? [
+            {
+              title: 'user_level',
+              key: 'user_level',
+              render: (item: WorkOrderDB) => {
+                return (
+                  <Box color={'myGray.900'} fontSize={'md'} fontWeight={'bold'}>
+                    {SystemEnv.config?.userlevel[item.userInfo.level].label[lang]}
+                  </Box>
+                );
+              }
+            }
+          ]
+        : []),
       {
         title: 'Operation',
         key: 'control',
