@@ -17,10 +17,8 @@ import useEnvStore from '@/store/env';
 import { getLangStore } from '@/utils/cookieUtils';
 
 function Home() {
-  // const { Loading } = useLoading();
   const { SystemEnv } = useEnvStore();
   const { t } = useTranslation();
-  // const [initialized, setInitialized] = useState(false);
   const router = useRouter();
   const [page, setPage] = useState(() => {
     const queryPage = Number(router.query.page);
