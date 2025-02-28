@@ -10,13 +10,14 @@ const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz', 12);
 export type CreateWorkOrderParams = {
   type: string;
   description: string;
+  files?: string[];
   appendix?: string[];
   token: string;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { type, description, appendix, token } = req.body as CreateWorkOrderParams;
+    const { type, description, appendix, token, files } = req.body as CreateWorkOrderParams;
     const userInfo = await verifyToken(token);
     if (!userInfo) {
       return jsonRes(res, {
@@ -44,7 +45,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         isAdmin: userInfo.isAdmin,
         domain: userInfo.domain,
         level: userInfo.level
-      }
+      },
+      dialogs: [
+        ...(files
+          ? files.map((file) => ({
+              isAdmin: false,
+              isAIBot: false,
+              userId: userInfo.userId,
+              content: file,
+              time: new Date()
+            }))
+          : []),
+        {
+          isAdmin: false,
+          isAIBot: false,
+          userId: userInfo.userId,
+          content: description,
+          time: new Date()
+        }
+      ]
     };
 
     await createOrder({ order: workorder });

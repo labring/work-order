@@ -33,7 +33,7 @@ const Header = ({
   });
 
   const handleWorkOrder = useCallback(
-    async (id: string, method: 'delete' | 'close') => {
+    async (id: string, method: 'delete' | 'close' | 'reopen') => {
       try {
         await updateWorkOrderById({
           orderId: id,
@@ -41,6 +41,10 @@ const Header = ({
             method === 'delete'
               ? {
                   status: WorkOrderStatus.Deleted
+                }
+              : method === 'reopen'
+              ? {
+                  status: WorkOrderStatus.Processing
                 }
               : {
                   status: WorkOrderStatus.Completed
@@ -50,7 +54,8 @@ const Header = ({
           title: `success`,
           status: 'success'
         });
-        router.push('/workorders');
+        if (method === 'delete') router.push('/workorders');
+        else router.reload();
       } catch (error) {}
     },
     [router, toast]
@@ -105,6 +110,20 @@ const Header = ({
           onClick={() => openCloseConfirm(() => handleWorkOrder(app.orderId, 'close'))()}
         >
           {t('Close')}
+        </Button>
+      )}
+      {app?.status === WorkOrderStatus.Completed && (
+        <Button
+          _focusVisible={{ boxShadow: '' }}
+          mr={5}
+          h={'40px'}
+          borderColor={'myGray.200'}
+          leftIcon={<MyIcon name={'restart'} w={'16px'} />}
+          variant={'base'}
+          bg={'white'}
+          onClick={() => openCloseConfirm(() => handleWorkOrder(app.orderId, 'reopen'))()}
+        >
+          {t('reopen')}
         </Button>
       )}
       <Button

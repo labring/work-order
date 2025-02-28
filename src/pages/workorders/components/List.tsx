@@ -32,7 +32,7 @@ const OrderList = ({
   }, []);
 
   const handleWorkOrder = useCallback(
-    async (id: string, method: 'delete' | 'close') => {
+    async (id: string, method: 'delete' | 'close' | 'open') => {
       try {
         await updateWorkOrderById({
           orderId: id,
@@ -40,6 +40,10 @@ const OrderList = ({
             method === 'delete'
               ? {
                   status: WorkOrderStatus.Deleted
+                }
+              : method === 'open'
+              ? {
+                  status: WorkOrderStatus.Processing
                 }
               : {
                   status: WorkOrderStatus.Completed
@@ -182,24 +186,47 @@ const OrderList = ({
                 </MenuButton>
               }
               menuList={[
-                {
-                  child: (
-                    <>
-                      <MyIcon name={'close'} w={'14px'} />
-                      <Box ml={2}>{t('Close')}</Box>
-                    </>
-                  ),
-                  onClick: () => handleWorkOrder(item.orderId, 'close')
-                },
-                {
-                  child: (
-                    <>
-                      <MyIcon name={'delete'} w={'14px'} />
-                      <Box ml={2}>{t('Delete')}</Box>
-                    </>
-                  ),
-                  onClick: () => handleWorkOrder(item.orderId, 'delete')
-                }
+                ...(item.status === WorkOrderStatus.Completed ||
+                item.status === WorkOrderStatus.Deleted
+                  ? [
+                      {
+                        child: (
+                          <>
+                            <MyIcon name={'restart'} w={'14px'} />
+                            <Box ml={2}>{t('reopen')}</Box>
+                          </>
+                        ),
+                        onClick: () => handleWorkOrder(item.orderId, 'open')
+                      }
+                    ]
+                  : []),
+                ...(item.status !== WorkOrderStatus.Completed &&
+                item.status !== WorkOrderStatus.Deleted
+                  ? [
+                      {
+                        child: (
+                          <>
+                            <MyIcon name={'close'} w={'14px'} />
+                            <Box ml={2}>{t('Close')}</Box>
+                          </>
+                        ),
+                        onClick: () => handleWorkOrder(item.orderId, 'close')
+                      }
+                    ]
+                  : []),
+                ...(item.status !== WorkOrderStatus.Deleted
+                  ? [
+                      {
+                        child: (
+                          <>
+                            <MyIcon name={'delete'} w={'14px'} />
+                            <Box ml={2}>{t('Delete')}</Box>
+                          </>
+                        ),
+                        onClick: () => handleWorkOrder(item.orderId, 'delete')
+                      }
+                    ]
+                  : [])
               ]}
             />
           </Flex>

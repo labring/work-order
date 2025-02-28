@@ -70,5 +70,6 @@
   "user_recalled_a_message": "Withdrawn a message",
   "you_recalled_a_message": "You recalled a message",
   "close_confirm": "Are you sure you want to close?",
-  "delete_confirm": "Are you sure you want to delete?"
+  "delete_confirm": "Are you sure you want to delete?",
+  "reopen": "Reopen"
 }

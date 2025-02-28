@@ -5,6 +5,10 @@ export type ConfigType = {
     en: string;
     zh: string;
   };
+  adminName: {
+    en: string;
+    zh: string;
+  };
   workorder: {
     type: {
       id: string;
