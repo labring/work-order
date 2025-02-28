@@ -5,7 +5,7 @@ import MySelect from '@/components/Select';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useLoading } from '@/hooks/useLoading';
 import { useToast } from '@/hooks/useToast';
-import { WorkOrderDialog, WorkOrderEditForm } from '@/types/workorder';
+import { WorkOrderEditForm } from '@/types/workorder';
 import { Box, BoxProps, Center, Flex, Icon, Spinner, Text, Textarea } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
@@ -17,6 +17,7 @@ import { deleteFileByName, getFileUrl, uploadFile } from '@/api/platform';
 import useSessionStore from '@/store/session';
 import useEnvStore from '@/store/env';
 import { getLangStore } from '@/utils/cookieUtils';
+import { serviceSideProps } from '@/utils/i18n';
 
 export default function EditOrder() {
   const [errorMessage, setErrorMessage] = useState('');
@@ -340,4 +341,11 @@ export default function EditOrder() {
       )}
     </Box>
   );
+}
+export async function getServerSideProps(content: any) {
+  return {
+    props: {
+      ...(await serviceSideProps(content))
+    }
+  };
 }
