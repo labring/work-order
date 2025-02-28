@@ -9,10 +9,9 @@ import { serviceSideProps } from '@/utils/i18n';
 import { Box, Button, Flex, Image, Text } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'next-i18next';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import List from './components/List';
 import useSessionStore from '@/store/session';
-import useStore from '@/hooks/useStore';
 import { useRouter } from 'next/router';
 import useEnvStore from '@/store/env';
 import { getLangStore } from '@/utils/cookieUtils';
@@ -41,7 +40,11 @@ function Home() {
     return currentDate;
   });
   const [endTime, setEndTime] = useState(new Date());
-  const session = useStore(useSessionStore, (state) => state.session);
+  const { session, authUser } = useSessionStore();
+
+  useEffect(() => {
+    if (typeof router.query.token === 'string') authUser(router.query.token);
+  }, [String(router.query.token)]);
 
   const { data, refetch } = useQuery(
     ['getWorkOrderList', page, pageSize, orderStatus, orderType, startTime, endTime, userLevel],

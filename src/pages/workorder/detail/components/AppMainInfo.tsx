@@ -5,7 +5,7 @@ import Markdown from '@/components/Markdown';
 import { useSelectFile } from '@/hooks/useSelectFile';
 import { useToast } from '@/hooks/useToast';
 import useSessionStore from '@/store/session';
-import { WorkOrderDB, WorkOrderDialog } from '@/types/workorder';
+import { WorkOrderDB, WorkOrderDialog, WorkOrderStatus } from '@/types/workorder';
 import { isURL } from '@/utils/file';
 import { formatTime } from '@/utils/tools';
 import { Box, Button, Center, Flex, Icon, Image, Spinner, Text, Textarea } from '@chakra-ui/react';
@@ -13,7 +13,11 @@ import { keyframes } from '@chakra-ui/system';
 import { fetchEventSource } from '@fortaine/fetch-event-source';
 import { throttle } from 'lodash';
 import { useTranslation } from 'next-i18next';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import FileSelectIcon from './FileSelectIcon';
+import CommandTip from './CommandTip';
+import useEnvStore from '@/store/env';
+import { getLangStore } from '@/utils/cookieUtils';
 
 const statusAnimation = keyframes`
   0% {
@@ -24,58 +28,7 @@ const statusAnimation = keyframes`
     opacity: 0.11;
   }
 `;
-
-const CommandTip = () => {
-  const { t } = useTranslation();
-
-  return (
-    <Flex alignItems={'center'} gap={'4px'} color={'rgb(153, 153, 153)'} fontSize={'12px'}>
-      <Icon
-        xmlns="http://www.w3.org/2000/svg"
-        width="12px"
-        height="12px"
-        viewBox="0 0 24 24"
-        fill="transparent"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <polyline points="9 10 4 15 9 20"></polyline>
-        <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
-      </Icon>
-      <Text>{t('send')}</Text>
-      <Text>/</Text>
-      <Flex alignItems={'center'}>
-        <Icon
-          fill={'rgb(153, 153, 153)'}
-          height="12px"
-          width="12px"
-          viewBox="0 0 32 32"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="m21 28h-10a2.0023 2.0023 0 0 1 -2-2v-10h-5a1 1 0 0 1 -.707-1.707l12-12a.9994.9994 0 0 1 1.414 0l12 12a1 1 0 0 1 -.707 1.707h-5v10a2.0027 2.0027 0 0 1 -2 2zm-14.5859-14h4.5859v12h10v-12h4.5859l-9.5859-9.5859z" />
-          <path d="m0 0h32v32h-32z" fill="none" />
-        </Icon>
-        <Icon
-          xmlns="http://www.w3.org/2000/svg"
-          width="12px"
-          height="12px"
-          viewBox="0 0 24 24"
-          fill="transparent"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="9 10 4 15 9 20"></polyline>
-          <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
-        </Icon>
-      </Flex>
-      <Text>{t('newline')}</Text>
-    </Flex>
-  );
-};
+const textareaMinH = '50px';
 
 const AppMainInfo = ({
   app,
@@ -86,7 +39,6 @@ const AppMainInfo = ({
   refetchWorkOrder: () => void;
   isManuallyHandled: boolean;
 }) => {
-  const textareaMinH = '50px';
   const [isLoading, setIsloading] = useState(false);
   const { session } = useSessionStore();
   const { t } = useTranslation();
@@ -104,7 +56,7 @@ const AppMainInfo = ({
     }[]
   >();
 
-  const { File, onOpen } = useSelectFile({
+  const { File: FileSelector, onOpen: onOpenSelectFile } = useSelectFile({
     fileType: 'image/*',
     multiple: true
   });
@@ -204,8 +156,21 @@ const AppMainInfo = ({
 
   const triggerRobotReply = async () => {
     let temp = '';
+    setIsloading(true);
     try {
       if (!app.manualHandling.isManuallyHandled && !session?.isAdmin) {
+        setDialogs((v) => {
+          return [
+            ...v,
+            {
+              time: new Date(),
+              content: 'loading...',
+              userId: 'robot',
+              isAdmin: false,
+              isAIBot: true
+            }
+          ];
+        });
         await fetchEventSource('/api/ai/fastgpt', {
           method: 'POST',
           headers: {
@@ -269,6 +234,7 @@ const AppMainInfo = ({
     } catch (error) {
       console.log(error);
     }
+    setIsloading(false);
   };
 
   const handleTransferToHuman = async () => {
@@ -311,16 +277,20 @@ const AppMainInfo = ({
   }, [dialogs, scrollToBottom]);
 
   useEffect(() => {
-    if (app?.dialogs?.length === 1) {
+    if (app?.dialogs?.every((dialog) => !dialog.isAdmin && !dialog.isAIBot)) {
       triggerRobotReply();
     }
-  }, []);
+  }, [app?.dialogs]);
 
   useEffect(() => {
     if (isManuallyHandled && app?.dialogs) {
       setDialogs(app?.dialogs);
     }
   }, [app?.dialogs, isManuallyHandled]);
+
+  const disabled = useMemo(() => {
+    return app?.status === WorkOrderStatus.Deleted || app?.status === WorkOrderStatus.Completed;
+  }, []);
 
   const handlePaste = useCallback(async (e: React.ClipboardEvent) => {
     const items = e.clipboardData.items;
@@ -366,6 +336,10 @@ const AppMainInfo = ({
       setIsloading(false);
     }
   };
+  const { SystemEnv } = useEnvStore();
+  const lang = useMemo(() => {
+    return getLangStore() === 'en' ? 'en' : 'zh';
+  }, []);
 
   return (
     <>
@@ -390,8 +364,8 @@ const AppMainInfo = ({
             return (
               <Box key={item.time.toString() + index}>
                 {index === 0 ||
-                  (dialogs?.[index - 1] &&
-                    new Date(dialogs[index - 1].time).getTime() <
+                (dialogs?.[index - 1] &&
+                  new Date(dialogs[index - 1].time).getTime() <
                     new Date(item.time).getTime() - 5 * 60 * 1000) ? (
                   <Flex
                     fontSize={'12px'}
@@ -426,7 +400,7 @@ const AppMainInfo = ({
                     <Box fontSize={'12px'} fontWeight={500}>
                       {item.isAdmin ? (
                         <Flex gap={'4px'}>
-                          <Text>FastGPT 支持</Text>
+                          <Text>{SystemEnv.config?.adminName[lang]}</Text>
                           <Text color={'#7B838B'}>ID:{item.userId}</Text>
                         </Flex>
                       ) : item.isAIBot && isChatLoading ? (
@@ -458,8 +432,8 @@ const AppMainInfo = ({
                           {item.userId === session?.userId
                             ? t('you_recalled_a_message')
                             : item.isAdmin
-                              ? t('user_recalled_a_message')
-                              : t('user_recalled_a_message')}
+                            ? t('user_recalled_a_message')
+                            : t('user_recalled_a_message')}
                         </Text>
                       ) : (
                         <>
@@ -630,6 +604,7 @@ const AppMainInfo = ({
           _focusVisible={{
             border: 'none'
           }}
+          disabled={disabled}
           whiteSpace={'pre-wrap'}
           onChange={(e) => {
             setText(e.target.value);
@@ -646,38 +621,21 @@ const AppMainInfo = ({
 
         <Flex alignItems={'center'} alignSelf={'end'} h="28px" gap="20px">
           <CommandTip />
-          <Icon
-            cursor={'pointer'}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24px"
-            height="24px"
-            viewBox="0 0 24 24"
-            fill="none"
-            onClick={() => {
-              onOpen();
-            }}
-          >
-            <path
-              d="M8.46502 11.2931C9.59802 10.1601 11.574 10.1601 12.707 11.2931L13.414 12.0001L14.828 10.5861L14.121 9.87906C13.178 8.93506 11.922 8.41406 10.586 8.41406C9.25002 8.41406 7.99402 8.93506 7.05102 9.87906L4.92902 12.0001C3.99332 12.9388 3.4679 14.2101 3.4679 15.5356C3.4679 16.861 3.99332 18.1323 4.92902 19.0711C5.3929 19.5356 5.94399 19.9039 6.55064 20.1548C7.15729 20.4057 7.80754 20.5342 8.46402 20.5331C9.12068 20.5344 9.77114 20.406 10.378 20.1551C10.9848 19.9042 11.5361 19.5358 12 19.0711L12.707 18.3641L11.293 16.9501L10.586 17.6571C10.0225 18.2181 9.25969 18.533 8.46452 18.533C7.66935 18.533 6.90655 18.2181 6.34302 17.6571C5.78153 17.0938 5.46623 16.3309 5.46623 15.5356C5.46623 14.7402 5.78153 13.9773 6.34302 13.4141L8.46502 11.2931Z"
-              fill="#7B838B"
-            />
-            <path
-              d="M12 4.92899L11.293 5.63599L12.707 7.04999L13.414 6.34299C13.9775 5.78198 14.7403 5.46702 15.5355 5.46702C16.3307 5.46702 17.0935 5.78198 17.657 6.34299C18.2185 6.90626 18.5338 7.66916 18.5338 8.46449C18.5338 9.25983 18.2185 10.0227 17.657 10.586L15.535 12.707C14.402 13.84 12.426 13.84 11.293 12.707L10.586 12L9.172 13.414L9.879 14.121C10.822 15.065 12.078 15.586 13.414 15.586C14.75 15.586 16.006 15.065 16.949 14.121L19.071 12C20.0067 11.0613 20.5321 9.78991 20.5321 8.46449C20.5321 7.13908 20.0067 5.86771 19.071 4.92899C18.1325 3.9928 16.8611 3.46704 15.5355 3.46704C14.2099 3.46704 12.9385 3.9928 12 4.92899Z"
-              fill="#7B838B"
-            />
-          </Icon>
+          <FileSelectIcon onOpenSelectFile={onOpenSelectFile} disable={disabled} />
           <Button
             variant={'primary'}
             w="71px"
             h="28px"
             borderRadius={'4px'}
             onClick={() => handleSend()}
+            disabled={isLoading || (text === '' && !uploadFiles.length) || disabled}
+            isLoading={isLoading}
           >
             {t('Send')}
           </Button>
         </Flex>
 
-        <File onSelect={(e) => uploadFiles(e)} />
+        <FileSelector onSelect={(e) => uploadFiles(e)} />
       </Flex>
     </>
   );

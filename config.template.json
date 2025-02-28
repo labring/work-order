@@ -3,6 +3,10 @@
     "en": "FastGPT | WorkOrder",
     "zh": "FastGPT | 工单"
   },
+  "adminName": {
+    "en": "FastGPT Support",
+    "zh": "FastGPT 支持"
+  },
   "workorder": {
     "type": [
       {
@@ -37,30 +41,35 @@
   },
   "userlevel": [
     {
+      "id": "free",
       "label": {
         "en": "Free",
         "zh": "免费版"
       }
     },
     {
+      "id": "experience",
       "label": {
         "en": "Experience",
         "zh": "体验版"
       }
     },
     {
+      "id": "team",
       "label": {
         "en": "Team",
         "zh": "团队版"
       }
     },
     {
+      "id": "enterprise",
       "label": {
         "en": "Enterprise",
         "zh": "企业版"
       }
     },
     {
+      "id": "custom",
       "label": {
         "en": "custom",
         "zh": "自定义"

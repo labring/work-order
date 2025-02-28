@@ -79,5 +79,6 @@
   "Experience": "体验版",
   "user_level": "用户等级",
   "delete_confirm": "确认删除？",
-  "close_confirm": "确认关闭？"
+  "close_confirm": "确认关闭？",
+  "reopen": "重新打开"
 }

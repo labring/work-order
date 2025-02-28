@@ -1,6 +1,6 @@
 import { generateAccessToken, verifyToken } from '@/services/backend/auth';
 import { jsonRes } from '@/services/backend/response';
-import { createUser, getUserById } from '@/services/db/user';
+import { createUser, getUserById, updateUser } from '@/services/db/user';
 import { AppSession, TokenPayload } from '@/types/user';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -19,6 +19,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const existingUser = await getUserById(payload.userId);
 
     if (existingUser) {
+      // update the userlevel
+      await updateUser(existingUser.userId, existingUser.username, {
+        level: payload.level
+      });
+
       const token = generateAccessToken(existingUser);
       return jsonRes<AppSession>(res, {
         code: 200,
